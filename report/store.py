@@ -46,7 +46,7 @@ def load_report(db: sqlite3.Connection, report_id: int) -> ReportRecord | None:
     report_id = require_id(report_id, 'report_id')
     row = db.execute(
         'SELECT m_hex, status, mass_numerator, mass_denominator, probability_numerator, '
-        'probability_denominator FROM reports WHERE report_id = ?',
+        "probability_denominator FROM reports WHERE report_id = ? AND kind = 'v1'",
         (report_id,),
     ).fetchone()
     if row is None:

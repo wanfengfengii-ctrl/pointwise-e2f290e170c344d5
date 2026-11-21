@@ -65,8 +65,15 @@ CREATE TABLE IF NOT EXISTS frame_members (
 
 CREATE TABLE IF NOT EXISTS issued_batches (
     issue_id TEXT NOT NULL PRIMARY KEY,
-    design_id INTEGER NOT NULL REFERENCES designs(design_id),
+    design_id INTEGER REFERENCES designs(design_id),
     wire BLOB NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS pair_issue_designs (
+    issue_id TEXT NOT NULL REFERENCES issued_batches(issue_id),
+    position INTEGER NOT NULL CHECK (position IN (0, 1)),
+    design_id INTEGER NOT NULL REFERENCES designs(design_id),
+    PRIMARY KEY (issue_id, position)
 );
 
 CREATE TABLE IF NOT EXISTS sample_issues (

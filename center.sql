@@ -9,17 +9,31 @@ CREATE TABLE IF NOT EXISTS intake (
 
 CREATE TABLE IF NOT EXISTS reports (
     report_id INTEGER PRIMARY KEY,
+    kind TEXT NOT NULL DEFAULT 'v1' CHECK (kind IN ('v1', 'pair')),
     m_hex TEXT NOT NULL,
     status TEXT NOT NULL CHECK (status IN ('reachable', 'unreachable')),
     mass_numerator TEXT NOT NULL,
     mass_denominator TEXT NOT NULL,
     probability_numerator TEXT,
-    probability_denominator TEXT,
-    CHECK (
-        (status = 'reachable' AND probability_numerator IS NOT NULL AND probability_denominator IS NOT NULL)
-        OR
-        (status = 'unreachable' AND probability_numerator IS NULL AND probability_denominator IS NULL)
-    )
+    probability_denominator TEXT
+);
+
+CREATE TABLE IF NOT EXISTS pair_report_cells (
+    report_id INTEGER NOT NULL REFERENCES reports(report_id),
+    position INTEGER NOT NULL CHECK (position BETWEEN 0 AND 3),
+    numerator TEXT NOT NULL,
+    denominator TEXT NOT NULL,
+    PRIMARY KEY (report_id, position)
+);
+
+CREATE TABLE IF NOT EXISTS report_parent_designs (
+    report_id INTEGER NOT NULL REFERENCES reports(report_id),
+    parent_position INTEGER NOT NULL,
+    design_position INTEGER NOT NULL,
+    design_id INTEGER NOT NULL,
+    revision_id INTEGER NOT NULL,
+    protocol_version TEXT NOT NULL,
+    PRIMARY KEY (report_id, parent_position, design_position)
 );
 
 CREATE TABLE IF NOT EXISTS report_parents (

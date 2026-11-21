@@ -3,10 +3,13 @@ from fractions import Fraction
 import sqlite3
 
 from analysis.overlap import condition_mass
+from analysis.paired_mass import paired_condition_mass
+from analysis.paired_request import resolve_pair_request
 from analysis.request import RiskRequest, resolve_request, validate_distinct_total
 from exchange.evidence import SamplingEvidence, validate_evidence
 from ledger import InvalidInput
 from report.issue import PublishedReport, issue_report
+from report.paired_issue import PairedPublishedReport, issue_pair_report
 
 
 @dataclass(frozen=True)
@@ -37,4 +40,27 @@ def publish(
     result = assess_risk(left.packet.evidence, right.packet.evidence, requested_m)
     return issue_report(
         db, requested_m, result.status, result.condition_mass, result.zero_probability, left, right
+    )
+
+
+def publish_pair(
+    db: sqlite3.Connection, pair_receipt_id: int, other_receipt_id: int, m: int | None = None
+) -> PairedPublishedReport:
+    requested_m = validate_distinct_total(m)
+    paired, other = resolve_pair_request(db, pair_receipt_id, other_receipt_id)
+    joint = paired_condition_mass(paired.packet.evidence, other.packet.evidence, requested_m)
+    if joint.cell_masses is None:
+        status = 'unreachable'
+        probabilities = None
+    else:
+        status = 'reachable'
+        probabilities = tuple(value / joint.condition for value in joint.cell_masses)
+    return issue_pair_report(
+        db,
+        requested_m,
+        status,
+        joint.condition,
+        probabilities,
+        paired,
+        other,
     )
