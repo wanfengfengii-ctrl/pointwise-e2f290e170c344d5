@@ -1,0 +1,22 @@
+{
+  "sample_key": "thin-plate-shared-rack-v1",
+  "shifts": [
+    {
+      "shift_id": "甲班",
+      "version": "v1",
+      "threshold": 10,
+      "readings": {"A-x": ["x", 12], "A-a": [null, 0]},
+      "layers": {"rack": ["A-x", "A-a"]},
+      "quotas": {"rack": 1}
+    },
+    {
+      "shift_id": "乙班",
+      "version": "v1",
+      "threshold": 10,
+      "readings": {"B-x": ["x", 10], "B-b": [null, -3]},
+      "layers": {"rack": ["B-x", "B-b"]},
+      "quotas": {"rack": 1}
+    }
+  ],
+  "distinct_totals": [1, 2, 3]
+}
